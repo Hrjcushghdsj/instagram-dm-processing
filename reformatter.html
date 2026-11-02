@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Instagram DM Reformat</title>
+<style>
+    /* ---------- Themes ---------- */
+    body[data-theme="cyborg"] {
+        --bg:#060606; --panel:#1a1a1a; --fg:#adafae; --border:#282828;
+        --accent:#2a9fd6; --accent-hover:#3cb0e5; --input-bg:#0d0d0d;
+        --input-fg:#fff; --heading:#fff; --muted:#6c757d;
+    }
+    body[data-theme="darkly"] {
+        --bg:#222; --panel:#2c2c2c; --fg:#aaa; --border:#464545;
+        --accent:#375a7f; --accent-hover:#4a7099; --input-bg:#1f1f1f;
+        --input-fg:#fff; --heading:#fff; --muted:#888;
+    }
+    body[data-theme="superhero"] {
+        --bg:#2b3e50; --panel:#344a5f; --fg:#ebebeb; --border:#4e5d6c;
+        --accent:#df691a; --accent-hover:#ff8033; --input-bg:#22303e;
+        --input-fg:#fff; --heading:#fff; --muted:#9bb0c4;
+    }
+    body[data-theme="solar"] {
+        --bg:#002b36; --panel:#073642; --fg:#93a1a1; --border:#586e75;
+        --accent:#b58900; --accent-hover:#d4a017; --input-bg:#00252e;
+        --input-fg:#fdf6e3; --heading:#eee8d5; --muted:#586e75;
+    }
+    body[data-theme="vapor"] {
+        --bg:#2c1639; --panel:#3a1e4c; --fg:#e0d0f0; --border:#6e3d8a;
+        --accent:#ff6ec7; --accent-hover:#ff92d6; --input-bg:#1f0f2a;
+        --input-fg:#fff; --heading:#fff; --muted:#a880c0;
+    }
+    body[data-theme="flatly"] {
+        --bg:#ecf0f1; --panel:#fff; --fg:#333; --border:#dce4ec;
+        --accent:#2c3e50; --accent-hover:#1a252f; --input-bg:#fff;
+        --input-fg:#333; --heading:#2c3e50; --muted:#7b8a8b;
+    }
+    body[data-theme="cosmo"] {
+        --bg:#f5f5f5; --panel:#fff; --fg:#333; --border:#dee2e6;
+        --accent:#2780e3; --accent-hover:#1c65b7; --input-bg:#fff;
+        --input-fg:#333; --heading:#2780e3; --muted:#6c757d;
+    }
+    body[data-theme="litera"] {
+        --bg:#f8f9fa; --panel:#fff; --fg:#343a40; --border:#dee2e6;
+        --accent:#4582ec; --accent-hover:#2c65c9; --input-bg:#fff;
+        --input-fg:#343a40; --heading:#343a40; --muted:#6c757d;
+    }
+    body[data-theme="minty"] {
+        --bg:#f8f9fa; --panel:#fff; --fg:#333; --border:#d8e5dd;
+        --accent:#78c2ad; --accent-hover:#5ba890; --input-bg:#fff;
+        --input-fg:#333; --heading:#78c2ad; --muted:#7b8a8b;
+    }
+
+    /* ---------- Base ---------- */
+    * { box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background: var(--bg); color: var(--fg);
+        margin: 0; padding: 24px; min-height: 100vh;
+        transition: background 0.2s, color 0.2s;
+    }
+    .container {
+        max-width: 820px; margin: 0 auto;
+        background: var(--panel); padding: 28px;
+        border-radius: 10px; border: 1px solid var(--border);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+    h1 { color: var(--heading); margin: 0 0 20px; font-size: 1.5em; }
+    h3 { color: var(--heading); margin: 0 0 14px; font-size: 1em;
+         text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+
+    /* ---------- Theme bar ---------- */
+    .theme-bar {
+        display: flex; justify-content: flex-end; align-items: center;
+        gap: 8px; margin-bottom: 12px;
+    }
+    .theme-bar label { font-size: 0.9em; color: var(--muted); }
+    .theme-bar select {
+        background: var(--input-bg); color: var(--input-fg);
+        border: 1px solid var(--border); border-radius: 4px;
+        padding: 4px 8px; font-size: 0.9em;
+    }
+
+    /* ---------- Sections ---------- */
+    .section {
+        margin: 20px 0; padding: 18px;
+        border: 1px solid var(--border); border-radius: 8px;
+        background: var(--panel);
+    }
+
+    /* ---------- Inputs ---------- */
+    input[type="text"], input[type="number"], input[type="date"],
+    input[type="file"] {
+        background: var(--input-bg); color: var(--input-fg);
+        border: 1px solid var(--border); border-radius: 4px;
+        padding: 8px 10px; font-size: 0.95em; font-family: inherit;
+        transition: border-color 0.15s;
+    }
+    input[type="text"]:focus, input[type="number"]:focus,
+    input[type="date"]:focus {
+        outline: none; border-color: var(--accent);
+    }
+    input[type="file"] { padding: 6px; width: 100%; }
+    input[type="file"]::file-selector-button {
+        background: var(--accent); color: #fff; border: none;
+        padding: 6px 12px; border-radius: 4px; cursor: pointer;
+        margin-right: 10px; font-family: inherit; font-size: 0.9em;
+    }
+    input[type="file"]::file-selector-button:hover {
+        background: var(--accent-hover);
+    }
+    input[type="checkbox"] {
+        width: 16px; height: 16px; cursor: pointer;
+        accent-color: var(--accent);
+    }
+
+    /* ---------- Buttons ---------- */
+    button {
+        background: var(--accent); color: #fff; border: none;
+        padding: 10px 20px; border-radius: 5px; cursor: pointer;
+        font-family: inherit; font-size: 0.95em; font-weight: 600;
+        transition: background 0.15s;
+    }
+    button:hover { background: var(--accent-hover); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.secondary {
+        background: transparent; color: var(--fg);
+        border: 1px solid var(--border); font-weight: normal;
+        padding: 6px 12px; font-size: 0.85em;
+    }
+    button.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ---------- Checkbox rows ---------- */
+    .check-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 8px 4px; cursor: pointer;
+    }
+    .check-row label { cursor: pointer; user-select: none; }
+    .check-row + .check-row { margin-top: 4px; }
+
+    /* ---------- Rows ---------- */
+    .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .row + .row { margin-top: 12px; }
+
+    /* ---------- Rename list ---------- */
+    #rename-list {
+        max-height: 320px; overflow-y: auto;
+        border: 1px solid var(--border); border-radius: 6px;
+        padding: 8px; background: var(--input-bg);
+    }
+    .rename-header {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 12px; padding: 4px 8px 10px;
+        font-size: 0.85em; color: var(--muted); font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--border); margin-bottom: 8px;
+    }
+    .rename-row {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 12px; align-items: center; padding: 4px 8px;
+    }
+    .rename-row + .rename-row { margin-top: 4px; }
+    .rename-original {
+        color: var(--fg); font-size: 0.95em;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .rename-new { width: 100%; }
+    .rename-empty {
+        padding: 16px; text-align: center; color: var(--muted);
+        font-style: italic;
+    }
+
+    /* ---------- Status ---------- */
+    #status {
+        margin-top: 16px; padding: 12px 16px;
+        border-radius: 6px; font-size: 0.9em;
+        display: none;
+    }
+    #status.info {
+        display: block; background: rgba(42,159,214,0.12);
+        border: 1px solid var(--accent); color: var(--fg);
+    }
+    #status.success {
+        display: block; background: rgba(40,167,69,0.12);
+        border: 1px solid #28a745; color: var(--fg);
+    }
+    #status.error {
+        display: block; background: rgba(220,53,69,0.12);
+        border: 1px solid #dc3545; color: var(--fg);
+    }
+
+    /* ---------- Misc ---------- */
+    .hidden { display: none !important; }
+    .save-btn { width: 100%; padding: 14px; font-size: 1.05em; margin-top: 8px; }
+    .hint { font-size: 0.85em; color: var(--muted); margin-top: 6px; }
+</style>
+</head>
+<body data-theme="cyborg">
+<div class="container">
+
+    <div class="theme-bar">
+        <label for="theme-select">Theme:</label>
+        <select id="theme-select">
+            <option value="cyborg">cyborg</option>
+            <option value="darkly">darkly</option>
+            <option value="superhero">superhero</option>
+            <option value="solar">solar</option>
+            <option value="vapor">vapor</option>
+            <option value="flatly">flatly</option>
+            <option value="cosmo">cosmo</option>
+            <option value="litera">litera</option>
+            <option value="minty">minty</option>
+        </select>
+    </div>
+
+    <h1>Instagram DM Reformat</h1>
+
+    <!-- Input -->
+    <div class="section">
+        <h3>Input</h3>
+        <input type="file" id="file-input" accept=".json,application/json">
+        <div class="hint">Select an Instagram message export <code>message_*.json</code>.</div>
+    </div>
+
+    <!-- Output -->
+    <div class="section">
+        <h3>Output</h3>
+        <div class="check-row">
+            <input type="checkbox" id="save-json" checked>
+            <label for="save-json">JSON</label>
+        </div>
+        <div class="check-row">
+            <input type="checkbox" id="save-txt">
+            <label for="save-txt">TXT transcript</label>
+        </div>
+        <div id="minutes-section" class="row hidden" style="margin-top:10px; padding-left: 4px;">
+            <label for="minutes">Minutes between timestamps in transcript:</label>
+            <input type="number" id="minutes" value="30" min="1" style="width: 90px;">
+        </div>
+    </div>
+
+    <!-- Date range -->
+    <div class="section">
+        <h3>Date range (optional)</h3>
+        <div class="check-row">
+            <input type="checkbox" id="use-date-range">
+            <label for="use-date-range">Filter by date range</label>
+        </div>
+        <div id="date-range-section" class="hidden" style="margin-top:10px;">
+            <div class="row" style="padding-left: 4px;">
+                <label for="min-date">From:</label>
+                <input type="date" id="min-date">
+                <button class="secondary" id="clear-min">Clear</button>
+                <label for="max-date" style="margin-left: 16px;">To:</label>
+                <input type="date" id="max-date">
+                <button class="secondary" id="clear-max">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rename -->
+    <div class="section">
+        <h3>Rename senders (optional)</h3>
+        <div id="rename-list">
+            <div class="rename-empty">Select an input file to list senders here.</div>
+        </div>
+    </div>
+
+    <button class="save-btn" id="save-btn">Save</button>
+
+    <div id="status"></div>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+ *  Core logic (mirrors the Python implementation)
+ * ============================================================ */
+
+const CENTRAL_TZ = "America/Chicago";
+
+// Cached Intl formatters for performance
+const _partsFmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: CENTRAL_TZ,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+    hourCycle: "h23",
+});
+const _tzFmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: CENTRAL_TZ,
+    timeZoneName: "short",
+});
+
+const MONTHS = ["January","February","March","April","May","June",
+                "July","August","September","October","November","December"];
+
+function centralParts(ms) {
+    const parts = {};
+    for (const p of _partsFmt.formatToParts(new Date(ms))) {
+        if (p.type !== "literal") parts[p.type] = p.value;
+    }
+    return parts;
+}
+
+function centralTzAbbr(ms) {
+    const parts = _tzFmt.formatToParts(new Date(ms));
+    const tz = parts.find(p => p.type === "timeZoneName");
+    return tz ? tz.value : "";
+}
+
+function formatTimestamp(ms) {
+    const p = centralParts(ms);
+    return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}:${p.second} ${centralTzAbbr(ms)}`;
+}
+
+function centralDateKey(ms) {
+    const p = centralParts(ms);
+    return `${p.year}-${p.month}-${p.day}`;  // YYYY-MM-DD (lexicographically sortable)
+}
+
+function formatTranscriptDate(ms) {
+    const p = centralParts(ms);
+    const y = parseInt(p.year, 10);
+    const m = parseInt(p.month, 10) - 1;
+    const d = parseInt(p.day, 10);
+    return `${MONTHS[m]} ${d}, ${y}`;
+}
+
+function fixMojibake(text) {
+    if (!text) return text;
+    try {
+        const bytes = new Uint8Array(text.length);
+        for (let i = 0; i < text.length; i++) {
+            const code = text.charCodeAt(i);
+            if (code > 255) throw new Error("not latin1");
+            bytes[i] = code;
+        }
+        return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    } catch (e) {
+        return text;
+    }
+}
+
+function detectLinkType(url) {
+    if (!url) return "sent a link";
+    const u = url.toLowerCase();
+
+    if (u.includes("instagram.com")) return "sent an Instagram post";
+    if (u.includes("giphy.com") || u.includes("media.giphy.com")) return "sent a GIF";
+
+    if (u.endsWith(".gif") || u.includes(".gif?")) return "sent a GIF";
+    if (u.endsWith(".pdf") || u.includes(".pdf?")) return "sent a PDF";
+    if (u.endsWith(".jpg") || u.includes(".jpg?") ||
+        u.endsWith(".jpeg") || u.includes(".jpeg?")) return "sent an image";
+    if (u.endsWith(".png") || u.includes(".png?")) return "sent an image";
+    if (u.endsWith(".mp4") || u.includes(".mp4?")) return "sent a video";
+    if (u.endsWith(".mp3") || u.includes(".mp3?") ||
+        u.endsWith(".ogg") || u.includes(".ogg?")) return "sent an audio file";
+
+    if (u.includes("youtube.com") || u.includes("youtu.be")) return "sent a YouTube link";
+    if (u.includes("tiktok.com")) return "sent a TikTok link";
+    if (u.includes("spotify.com")) return "sent a Spotify link";
+
+    return "sent a link";
+}
+
+function buildContent(msg) {
+    if (msg.share) {
+        const link = msg.share.link || "";
+        if (link && link.toLowerCase().includes("instagram.com"))
+            return "sent an Instagram post";
+        if (link && (link.toLowerCase().includes("giphy.com") ||
+                     link.toLowerCase().includes("media.giphy.com")))
+            return "sent a GIF";
+        return detectLinkType(link);
+    }
+    if (msg.photos)     return `sent ${msg.photos.length} photo(s)`;
+    if (msg.videos)     return `sent ${msg.videos.length} video(s)`;
+    if (msg.audio_files) return "sent an audio message";
+    if (msg.gifs)       return "sent a GIF";
+
+    const content = (msg.content || "").trim();
+    if (content) return fixMojibake(content);
+    return "";
+}
+
+function buildTranscript(entries, gapMinutes) {
+    const lines = [];
+    let prevMs = null;
+    let prevDateKey = null;
+
+    for (const [ms, entry] of entries) {
+        const p = centralParts(ms);
+        const dateKey = `${p.year}-${p.month}-${p.day}`;
+        const timeStr = `${p.hour}:${p.minute}`;
+
+        if (prevDateKey === null || dateKey !== prevDateKey) {
+            lines.push(formatTranscriptDate(ms));
+            lines.push(timeStr);
+        } else {
+            const elapsedMinutes = (ms - prevMs) / 1000 / 60;
+            if (elapsedMinutes >= gapMinutes) lines.push(timeStr);
+        }
+
+        lines.push(`${entry.sender}: "${entry.message}"`);
+        prevMs = ms;
+        prevDateKey = dateKey;
+    }
+    return lines.join("\n");
+}
+
+function processMessages(data, renameMap, minDate, maxDate) {
+    const messages = data.messages || [];
+    const withMs = [];
+
+    for (const msg of messages) {
+        const contentText = msg.content || "";
+        if (contentText === "You sent an attachment." && !msg.share) continue;
+
+        const content = buildContent(msg);
+        if (!content) continue;
+
+        let sender = msg.sender_name || "Unknown";
+        if (renameMap[sender]) sender = renameMap[sender];
+
+        const ts = msg.timestamp_ms;
+        if (ts === undefined || ts === null) continue;
+
+        if (minDate || maxDate) {
+            const day = centralDateKey(ts);
+            if (minDate && day < minDate) continue;
+            if (maxDate && day > maxDate) continue;
+        }
+
+        withMs.push([ts, {
+            sender,
+            timestamp: formatTimestamp(ts),
+            message: content,
+        }]);
+    }
+
+    withMs.sort((a, b) => a[0] - b[0]);
+    return {
+        simplified: withMs.map(x => x[1]),
+        entries: withMs,
+    };
+}
+
+/* ============================================================
+ *  Minimal ZIP writer (STORE method, no compression)
+ * ============================================================ */
+
+let _crcTable = null;
+function _buildCrcTable() {
+    _crcTable = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+        let c = i;
+        for (let j = 0; j < 8; j++) {
+            c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        }
+        _crcTable[i] = c >>> 0;
+    }
+}
+function crc32(bytes) {
+    if (!_crcTable) _buildCrcTable();
+    let crc = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) {
+        crc = (crc >>> 8) ^ _crcTable[(crc ^ bytes[i]) & 0xFF];
+    }
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
+function createZip(files) {
+    // files: [{name: string, data: Uint8Array}, ...]
+    const encoder = new TextEncoder();
+    const chunks = [];
+    const centralDir = [];
+    let offset = 0;
+
+    const now = new Date();
+    const dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) |
+                     (now.getSeconds() >> 1)) & 0xFFFF;
+    const dosDate = (((now.getFullYear() - 1980) << 9) |
+                     ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
+    const FLAG_UTF8 = 0x0800;
+
+    for (const file of files) {
+        const nameBytes = encoder.encode(file.name);
+        const data = file.data;
+        const crc = crc32(data);
+        const size = data.length;
+
+        // Local File Header (30 bytes)
+        const lfh = new DataView(new ArrayBuffer(30));
+        lfh.setUint32(0, 0x04034b50, true);         // signature
+        lfh.setUint16(4, 20, true);                  // version needed
+        lfh.setUint16(6, FLAG_UTF8, true);           // flags
+        lfh.setUint16(8, 0, true);                   // method: stored
+        lfh.setUint16(10, dosTime, true);
+        lfh.setUint16(12, dosDate, true);
+        lfh.setUint32(14, crc, true);
+        lfh.setUint32(18, size, true);               // compressed size
+        lfh.setUint32(22, size, true);               // uncompressed size
+        lfh.setUint16(26, nameBytes.length, true);
+        lfh.setUint16(28, 0, true);                  // extra length
+
+        chunks.push(new Uint8Array(lfh.buffer));
+        chunks.push(nameBytes);
+        chunks.push(data);
+
+        // Central Directory Header (46 bytes)
+        const cdr = new DataView(new ArrayBuffer(46));
+        cdr.setUint32(0, 0x02014b50, true);
+        cdr.setUint16(4, 20, true);                  // version made by
+        cdr.setUint16(6, 20, true);                  // version needed
+        cdr.setUint16(8, FLAG_UTF8, true);
+        cdr.setUint16(10, 0, true);                  // method
+        cdr.setUint16(12, dosTime, true);
+        cdr.setUint16(14, dosDate, true);
+        cdr.setUint32(16, crc, true);
+        cdr.setUint32(20, size, true);
+        cdr.setUint32(24, size, true);
+        cdr.setUint16(28, nameBytes.length, true);
+        cdr.setUint16(30, 0, true);                  // extra len
+        cdr.setUint16(32, 0, true);                  // comment len
+        cdr.setUint16(34, 0, true);                  // disk number
+        cdr.setUint16(36, 0, true);                  // internal attrs
+        cdr.setUint32(38, 0, true);                  // external attrs
+        cdr.setUint32(42, offset, true);             // relative offset
+
+        centralDir.push({ data: new Uint8Array(cdr.buffer), name: nameBytes });
+        offset += 30 + nameBytes.length + size;
+    }
+
+    const cdStart = offset;
+    let cdSize = 0;
+    for (const cd of centralDir) {
+        chunks.push(cd.data);
+        chunks.push(cd.name);
+        cdSize += 46 + cd.name.length;
+    }
+
+    // End of Central Directory (22 bytes)
+    const eocd = new DataView(new ArrayBuffer(22));
+    eocd.setUint32(0, 0x06054b50, true);
+    eocd.setUint16(4, 0, true);
+    eocd.setUint16(6, 0, true);
+    eocd.setUint16(8, files.length, true);
+    eocd.setUint16(10, files.length, true);
+    eocd.setUint32(12, cdSize, true);
+    eocd.setUint32(16, cdStart, true);
+    eocd.setUint16(20, 0, true);
+    chunks.push(new Uint8Array(eocd.buffer));
+
+    let total = 0;
+    for (const c of chunks) total += c.length;
+    const out = new Uint8Array(total);
+    let pos = 0;
+    for (const c of chunks) { out.set(c, pos); pos += c.length; }
+    return out;
+}
+
+/* ============================================================
+ *  UI wiring
+ * ============================================================ */
+
+let currentFile = null;   // File object
+let currentData = null;   // Parsed JSON
+
+const $ = id => document.getElementById(id);
+const fileInput = $("file-input");
+const saveJson = $("save-json");
+const saveTxt = $("save-txt");
+const minutesSection = $("minutes-section");
+const minutesInput = $("minutes");
+const useDateRange = $("use-date-range");
+const dateRangeSection = $("date-range-section");
+const minDateInput = $("min-date");
+const maxDateInput = $("max-date");
+const renameList = $("rename-list");
+const saveBtn = $("save-btn");
+const statusEl = $("status");
+const themeSelect = $("theme-select");
+
+const renameEntries = {};   // senderName -> <input> element
+
+/* ---------- Theme ---------- */
+themeSelect.addEventListener("change", () => {
+    document.body.setAttribute("data-theme", themeSelect.value);
+    try { localStorage.setItem("dm-theme", themeSelect.value); } catch (e) {}
+});
+try {
+    const saved = localStorage.getItem("dm-theme");
+    if (saved && [...themeSelect.options].some(o => o.value === saved)) {
+        themeSelect.value = saved;
+        document.body.setAttribute("data-theme", saved);
+    }
+} catch (e) {}
+
+/* ---------- Toggle visibility ---------- */
+saveTxt.addEventListener("change", () => {
+    minutesSection.classList.toggle("hidden", !saveTxt.checked);
+});
+useDateRange.addEventListener("change", () => {
+    dateRangeSection.classList.toggle("hidden", !useDateRange.checked);
+});
+$("clear-min").addEventListener("click", () => { minDateInput.value = ""; });
+$("clear-max").addEventListener("click", () => { maxDateInput.value = ""; });
+
+/* ---------- Status helper ---------- */
+function setStatus(kind, message) {
+    statusEl.className = kind;   // 'info' | 'success' | 'error' | ''
+    statusEl.textContent = message || "";
+    if (!kind) statusEl.className = "";
+}
+
+/* ---------- Rename list ---------- */
+function rebuildRenameList(senders) {
+    for (const k of Object.keys(renameEntries)) delete renameEntries[k];
+    renameList.innerHTML = "";
+
+    if (!senders.length) {
+        const div = document.createElement("div");
+        div.className = "rename-empty";
+        div.textContent = "Select an input file to list senders here.";
+        renameList.appendChild(div);
+        return;
+    }
+
+    const header = document.createElement("div");
+    header.className = "rename-header";
+    header.innerHTML = "<div>Original name</div><div>New name (leave blank to keep)</div>";
+    renameList.appendChild(header);
+
+    for (const s of senders) {
+        const row = document.createElement("div");
+        row.className = "rename-row";
+
+        const orig = document.createElement("div");
+        orig.className = "rename-original";
+        orig.textContent = s;
+        orig.title = s;
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "rename-new";
+        input.placeholder = "(keep)";
+
+        row.appendChild(orig);
+        row.appendChild(input);
+        renameList.appendChild(row);
+        renameEntries[s] = input;
+    }
+}
+
+/* ---------- File loading ---------- */
+fileInput.addEventListener("change", async () => {
+    setStatus("", "");
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) {
+        currentFile = null;
+        currentData = null;
+        rebuildRenameList([]);
+        return;
+    }
+    try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        const senders = new Set();
+        for (const msg of (data.messages || [])) {
+            if (msg.sender_name) senders.add(msg.sender_name);
+        }
+        currentFile = file;
+        currentData = data;
+        rebuildRenameList([...senders].sort((a, b) => a.localeCompare(b)));
+    } catch (err) {
+        currentFile = null;
+        currentData = null;
+        rebuildRenameList([]);
+        setStatus("error", `Failed to read file: ${err.message}`);
+    }
+});
+
+/* ---------- Download helper ---------- */
+function downloadBlob(data, filename, mime) {
+    const blob = new Blob([data], { type: mime || "application/octet-stream" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function baseName(filename) {
+    return (filename || "output").replace(/\.[^.]+$/, "") || "output";
+}
+
+/* ---------- Save ---------- */
+saveBtn.addEventListener("click", async () => {
+    setStatus("", "");
+    if (!currentData) {
+        setStatus("error", "Please select an input JSON file.");
+        return;
+    }
+    if (!saveJson.checked && !saveTxt.checked) {
+        setStatus("error", "Check at least one output format (JSON or TXT).");
+        return;
+    }
+
+    let minutes = 30;
+    if (saveTxt.checked) {
+        minutes = parseInt(minutesInput.value, 10);
+        if (!Number.isFinite(minutes) || minutes < 1) {
+            setStatus("error", "Minutes must be a positive integer.");
+            return;
+        }
+    }
+
+    // Rename map
+    const renameMap = {};
+    for (const [oldName, el] of Object.entries(renameEntries)) {
+        const v = el.value.trim();
+        if (v) renameMap[oldName] = v;
+    }
+
+    // Date range
+    let minDate = "", maxDate = "";
+    if (useDateRange.checked) {
+        minDate = minDateInput.value || "";
+        maxDate = maxDateInput.value || "";
+        const re = /^\d{4}-\d{2}-\d{2}$/;
+        if (minDate && !re.test(minDate)) {
+            setStatus("error", `Invalid start date: ${minDate}`);
+            return;
+        }
+        if (maxDate && !re.test(maxDate)) {
+            setStatus("error", `Invalid end date: ${maxDate}`);
+            return;
+        }
+        if (minDate && maxDate && minDate > maxDate) {
+            setStatus("error", "Start date must be before end date.");
+            return;
+        }
+    }
+
+    saveBtn.disabled = true;
+    setStatus("info", "Processing…");
+    // Let the browser paint before the CPU-heavy work
+    await new Promise(r => setTimeout(r, 20));
+
+    try {
+        const { simplified, entries } = processMessages(
+            currentData, renameMap, minDate, maxDate);
+
+        const base = baseName(currentFile.name);
+
+        if (saveJson.checked && saveTxt.checked) {
+            // ZIP with both
+            const jsonText = JSON.stringify(simplified, null, 2);
+            const transcript = buildTranscript(entries, minutes);
+            const txtText = transcript ? transcript + "\n" : "";
+
+            const enc = new TextEncoder();
+            const zipBytes = createZip([
+                { name: "messages.json",   data: enc.encode(jsonText) },
+                { name: "transcript.txt",  data: enc.encode(txtText) },
+            ]);
+            downloadBlob(zipBytes, `${base}_export.zip`, "application/zip");
+            setStatus("success",
+                `Saved ${simplified.length} messages to ${base}_export.zip (JSON + TXT).`);
+
+        } else if (saveJson.checked) {
+            const text = JSON.stringify(simplified, null, 2);
+            downloadBlob(text, `${base}_reformatted.json`, "application/json");
+            setStatus("success",
+                `Saved ${simplified.length} messages to ${base}_reformatted.json.`);
+
+        } else {
+            const transcript = buildTranscript(entries, minutes);
+            const text = transcript ? transcript + "\n" : "";
+            downloadBlob(text, `${base}_transcript.txt`, "text/plain");
+            setStatus("success",
+                `Saved transcript (${entries.length} messages) to ${base}_transcript.txt.`);
+        }
+    } catch (err) {
+        console.error(err);
+        setStatus("error", `Failed: ${err.message || err}`);
+    } finally {
+        saveBtn.disabled = false;
+    }
+});
+</script>
+</body>
+</html>
